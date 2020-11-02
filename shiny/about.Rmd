@@ -1,0 +1,103 @@
+---
+output:
+  html_document:
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+htmltools::tagList(rmarkdown::html_dependency_font_awesome())
+options(encoding = "UTF-8")
+```
+
+### Présentation de l'application
+
+Cette application sert à visualiser et explorer deux indicateurs d'accessibilité aux équipements en France. Elle permet d'une part de cartographier ces grandeurs à l'échelle communale, mais aussi à une résolution beaucoup plus fine correspondant à une grille composée de carreaux de 200m de côté.  
+
+L'utilisateur a le choix parmi 35 équipements ou services, réparties en 6 thèmes : services aux particuliers, commerces, éducation, santé, transport, sport et loisirs.  
+
+**ATTENTION : cette application fait partie d'un projet personnel, sans aucun financement. Elle est donc hebergée gratuitement sur un serveur disposant de peu de ressources (1024 Mo de mémoire vive). Malgré mes efforts pour l'optimiser, il arrive que le serveur déconnecte inopinément. Si vous souhaitez profiter pleinement de cette application sur votre ordinateur, je peux vous transmettre une copie.** 
+
+### Comment s'en servir ?
+
+L'icone <i class="fa fa-gear"></i> permet de choisir l'indicateur et l'équipement à visualiser.  
+
+L'icone <i class="fa fa-search"></i> permet de zoomer sur une commune et d'afficher des statistiques sur la partie droite de l'écran.  
+
+Si l'utilisateur choisit un département, il peut alors visualiser l'indicateur à une échelle infracommunale (résolution de 200m).  
+
+L'onglet "Explorateur" permet d'explorer, sous forme de table à l'échelle communale, les indicateurs pour l'équipement sélectionné.  
+
+
+### Indicateurs
+
+Deux types d'indicateurs ont été calculés pour chaque équipement. Ils sont d'abord calculés à une résolution de 200m sur tout le territoire métropolitain, puis aggrégé au niveau communal en pondérant par la population de chaque carreau.  
+
+
+
+**Indicateur 1 : Accessibilité Potentielle Localisée**  
+
+Largement utilisé dans le domaine de la santé, l'APL est un indicateur synthétique et facilement interprétable. Tout comme une densité, il s'interprète comme un nombre d'équipement pour une population donnée. Cependant, la population (i.e. la demande) est modélisée en prenant en compte non seulement la population sur place, mais aussi celles des localisations avoisinantes.  
+
+Pour décrire le calcul de l'APL, prenons l'exemple des médecins généralistes.  
+
+
+* *Étape 1. Identification des zones de patientèle et calcul de densités*
+
+Dans un premier temps, on définit une zone de patientèle autour des médecins implantés dans une même localité. On détermine ainsi pour chaque localité j d’implantation de médecins, l’ensemble des carreaux i accessibles avec un déplacement dont la distance est inférieure à un seuil de référence d0. On calcule ainsi un ratio Rj qui rapporte l’offre de médecins en j à la population située dans une aire d’attraction de rayon d0 centrée sur la commune j (zone de patientèle).  
+
+$$ R_{j} = \frac{m_{j}}{\sum\limits_{d_{ij} < d_{0}}^{} p_{i}*w(d_{ij})}$$
+Avec $m_{j}$ le nombre de médecins dans le carreau $j$,  
+$p_{i}$ la population du carreau i,  
+$w(d_{ij})$ la pondération relative à la distance,  
+$d_{0}$ la distance seuil de 15 minutes.  
+
+* *Étape 2. Identification des zones de recours et somme des densités calculées dans la première étape*  
+
+Dans un second temps, on définit pour chaque carreau i, l’ensemble des carreaux j de médecins accessibles sous une distance d0 (zone de recours). Puis on somme les ratios Rj correspondants en les pondérant par la distance. Le résultat ainsi obtenu représente l’Accessibilité potentielle localisée APLi aux médecins généralistes libéraux pour la population située en i.  
+
+$$APL_{i} = \sum\limits_{d_{ij} < d_{0}}^{} w(d_{ij}) * R_{j}$$
+
+**Indicateur 2 : Equipement le plus proche**  
+
+Le second indicateur est tout simplement le temps de trajet minimal pour atteindre l'équipement.  
+
+$$ d_{ik} = min(D_{ik})$$
+Avec $d_{ik}$ le temps de trajet minimal du carreau $i$ à l'équipement $k$,  
+$D_{ij}$ le vecteur de distances du carreau $i$ à toute les localités où $k$ est implanté.  
+
+
+### Données
+
+Toutes les données sont libres et gratuites.  
+Voici la liste exhaustive :  
+
+
+- [population 2010 carroyée au 200m de l'INSEE](https://www.insee.fr/fr/statistiques/2520034?sommaire=4176305)  
+
+Créée à partir des fichiers fiscaux, cette base de données décrit la population par maille de 200m sur tout le territoire métropolitain.  
+Environ 2.5M de carreaux avec une population supérieure à zéro.  
+
+- [Base Permanente des Equipements 2019 géolocalisés de l'INSEE](https://www.insee.fr/fr/statistiques/3568638?sommaire=3568656)  
+
+Base de données avec la géolocalisation de plus de 150 types d'équipements et services sur le territoire.  
+Environ 2.3M d'équipements avec coordonnées géographiques.  
+
+- [Structure de la population communale 2017 par tranches d'âge](https://www.insee.fr/fr/statistiques/4515565?sommaire=4516122)  
+
+- [Découpage communale 2019 de l'IGN](https://geoservices.ign.fr/documentation/diffusion/telechargement-donnees-libres.html#geofla)  
+
+
+- [Réseau routier issu d'OpenStreetMap](https://download.geofabrik.de/europe/france.html), extrait avec l'outil [osm2po](https://osm2po.de/)  
+
+Environ 4.5M de noeuds et plus de 10M de tronçons routiers
+
+### Outils utilisés 
+
+L'application interactive, ainsi que les calculs nécéssaires à sa réalisation ont été réalisés avec le langage `R`.  
+Tous les scripts sont disponibles [ici](https://github.com/vlarmet/acces_app).     
+
+### Contact
+
+larmet.vincent@gmail.com
+
