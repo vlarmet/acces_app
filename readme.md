@@ -4,6 +4,7 @@
 Lien de l’app : <http://vlarmet.shinyapps.io/accessibilite/>
 
 ## Details
+**Tous les indicateurs ont été calculés sur un PC Windows 7, processeur i7, 16Gb de memoire.**  
 
 Ce repo contient uniquement des scripts, car les données sont trop
 lourdes.
